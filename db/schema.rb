@@ -20,7 +20,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_26_195916) do
     t.integer "visits_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["original_url"], name: "index_urls_on_original_url"
-    t.index ["short_url"], name: "index_urls_on_short_url", unique: true
+    t.index ["short_url"], name: "index_urls_on_short_url"
   end
 end
