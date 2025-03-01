@@ -1,15 +1,12 @@
 # URL Shortener
 
-A robust and performant URL shortening service built with Ruby on Rails and PostgreSQL. This application allows users to create shortened URLs with optional custom slugs, track visit analytics, and manage URL expirations.
+A robust and performant URL shortening service built with Ruby on Rails and PostgreSQL. This application allows users to create shortened URLs and track visit analytics.
 
 ## Features
 
 - **URL Shortening**: Generate short links for any valid URL
-- **Custom Slugs**: Optionally specify custom short URLs
 - **Visit Analytics**: Track visits with referrer, user agent, and IP information
-- **URL Expiration**: Set expiration dates for temporary links
 - **RESTful API**: Full-featured API for integration with other services
-- **Responsive UI**: Clean, intuitive interface built with Bootstrap
 
 ## Technologies
 
@@ -17,14 +14,13 @@ A robust and performant URL shortening service built with Ruby on Rails and Post
 - **Database**: PostgreSQL
 - **Caching**: Redis
 - **Testing**: RSpec, Factory Bot, Shoulda Matchers
-- **Frontend**: HTML, JavaScript, Bootstrap 5
-- **Containerization**: Docker (optional)
+- **Background Jobs**: ActiveRecord Background Jobs
 
 ## Requirements
 
 - Ruby 3.0+
 - PostgreSQL 13+
-- Redis (for production caching)
+- Redis (for caching)
 - Node.js (for asset compilation)
 
 ## Installation
@@ -33,7 +29,7 @@ A robust and performant URL shortening service built with Ruby on Rails and Post
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/yourusername/url-shortener.git
+   git clone https://github.com/zunair-dev/url-shortener.git
    cd url-shortener
    ```
 
@@ -55,25 +51,7 @@ A robust and performant URL shortening service built with Ruby on Rails and Post
 
 The application will be available at http://localhost:3000
 
-### Docker Setup
-
-1. Make sure Docker and Docker Compose are installed on your system
-
-2. Build and start the containers
-   ```bash
-   docker-compose up --build
-   ```
-
-3. Set up the database (first time only)
-   ```bash
-   docker-compose exec web rails db:create db:migrate
-   ```
-
-The application will be available at http://localhost:3000
-
 ## Configuration
-
-The application uses environment variables for configuration. Create a `.env` file in the root directory with the following variables:
 
 ```
 DATABASE_URL=postgres://user:password@localhost:5432/url_shortener_production
@@ -90,9 +68,7 @@ Request body:
 ```json
 {
   "url": {
-    "original_url": "https://example.com",
-    "short_url": "custom",  // Optional
-    "expires_at": "2023-12-31T23:59:59Z"  // Optional
+    "url": "https://example.com"
   }
 }
 ```
@@ -101,11 +77,11 @@ Response:
 ```json
 {
   "id": 1,
-  "original_url": "https://example.com",
-  "short_url": "custom",
+  "url": "https://example.com",
+  "slug": "custom",
   "visits_count": 0,
   "created_at": "2023-01-01T12:00:00Z",
-  "short_url_path": "http://localhost:3000/custom"
+  "shortened_link": "http://localhost:3000/custom"
 }
 ```
 
@@ -118,19 +94,19 @@ Response:
 [
   {
     "id": 1,
-    "original_url": "https://example.com",
-    "short_url": "custom",
+    "url": "https://example.com",
+    "slug": "custom",
     "visits_count": 5,
     "created_at": "2023-01-01T12:00:00Z",
-    "short_url_path": "http://localhost:3000/custom"
+    "shortened_link": "http://localhost:3000/custom"
   },
   {
     "id": 2,
-    "original_url": "https://another-example.com",
-    "short_url": "abc123",
+    "url": "https://another-example.com",
+    "slug": "abc123",
     "visits_count": 10,
     "created_at": "2023-01-02T12:00:00Z",
-    "short_url_path": "http://localhost:3000/abc123"
+    "shortened_link": "http://localhost:3000/abc123"
   }
 ]
 ```
@@ -143,11 +119,11 @@ Response:
 ```json
 {
   "id": 1,
-  "original_url": "https://example.com",
-  "short_url": "custom",
+  "url": "https://example.com",
+  "slug": "custom",
   "visits_count": 5,
   "created_at": "2023-01-01T12:00:00Z",
-  "short_url_path": "http://localhost:3000/custom"
+  "shortened_link": "http://localhost:3000/custom"
 }
 ```
 
@@ -160,20 +136,9 @@ rspec
 
 ## Performance Considerations
 
-- Database indexes on `short_url` and `original_url` fields for faster lookups
+- Database indexes on `slug` and `url` fields for faster lookups
 - Redis caching for frequently accessed short URLs
-- Counter cache for visit counts to reduce database load
-
-## Deployment
-
-The application is containerized and can be easily deployed to any Docker-compatible hosting service:
-
-1. Set up production environment variables
-2. Build the Docker image
-   ```bash
-   docker build -t url-shortener .
-   ```
-3. Deploy the image to your hosting service
+- Eager loading of associated records to minimize database queries
 
 ## Contributing
 
