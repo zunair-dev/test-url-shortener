@@ -70,4 +70,4 @@ group :test do
 end
 
 gem "active_model_serializers", "~> 0.10.0"
-gem "redis", "~> 4.0"
+gem "redis", "~> 5.4"
